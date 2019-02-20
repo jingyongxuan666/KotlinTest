@@ -1,5 +1,6 @@
 package com.jyx.kotlintest.Model
 
+
 data class ImagesBean(
     val `data`: List<Data>,
     val status: Int,
@@ -44,7 +45,6 @@ data class Data(
     val views: Int,
     val vote: Any
 )
-
 data class Image(
     val account_id: Any,
     val account_url: Any,

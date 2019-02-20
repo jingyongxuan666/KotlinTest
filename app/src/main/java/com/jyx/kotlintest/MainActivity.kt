@@ -1,59 +1,46 @@
 package com.jyx.kotlintest
 
-import android.app.ProgressDialog
-import android.opengl.Visibility
-import android.support.v7.app.AppCompatActivity
+import android.arch.lifecycle.Observer
+import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
+import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.GridLayoutManager
-import android.util.Log
-import android.view.View
-import android.widget.ProgressBar
-import android.widget.Toast
+import android.support.v7.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.jyx.kotlintest.Adapter.ImgAdapter
 import com.jyx.kotlintest.Model.Data
 import com.jyx.kotlintest.Model.ImagesBean
-import com.jyx.kotlintest.Network.NetService
+import com.jyx.kotlintest.Model.ImagesVIewModel
+import com.jyx.kotlintest.R.id.rvImages
 import kotlinx.android.synthetic.main.activity_main.*
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.converter.scalars.ScalarsConverterFactory
 
 class MainActivity : AppCompatActivity() {
+
+    var imgsViewModel: ImagesVIewModel? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        imgsViewModel = ViewModelProviders.of(this).get(ImagesVIewModel::class.java)
+        imgsViewModel!!.getData(this).observe(this, object : Observer<ImagesBean> {
+            override fun onChanged(imagesBean: ImagesBean?) {
 
-        val retrofit = Retrofit.Builder()
-            .baseUrl("https://api.imgur.com/3/gallery/")
-            .addConverterFactory(ScalarsConverterFactory.create())
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-        val netService = retrofit.create(NetService::class.java)
-        progress_bar.visibility = View.VISIBLE
-        netService.getImages().enqueue(object : Callback<ImagesBean>{
-            override fun onFailure(call: Call<ImagesBean>, t: Throwable) {
-                Log.d("test",t.message)
-                progress_bar.visibility = View.GONE
-                Toast.makeText(this@MainActivity,"net is poor",Toast.LENGTH_SHORT).show()
-            }
-
-            override fun onResponse(call: Call<ImagesBean>, response: Response<ImagesBean>) {
-
-                var imagesBean:ImagesBean? = response!!.body()
                 var imgList :List<Data> = imagesBean!!.data
-                rvImages.layoutManager = GridLayoutManager(this@MainActivity,2)
+                rvImages.layoutManager = GridLayoutManager(this@MainActivity,2) as RecyclerView.LayoutManager?
                 rvImages.adapter = ImgAdapter(this@MainActivity,imgList)
-                progress_bar.visibility = View.GONE
+                rvImages.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                    override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                        if (newState == RecyclerView.SCROLL_STATE_IDLE){
+                            Glide.with(this@MainActivity).resumeRequests()
+                        }else{
+                            Glide.with(this@MainActivity).pauseRequests()
+                        }
+                    }
+                })
             }
 
         })
-
-
 
 
     }
