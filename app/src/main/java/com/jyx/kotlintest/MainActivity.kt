@@ -11,7 +11,6 @@ import com.jyx.kotlintest.Adapter.ImgAdapter
 import com.jyx.kotlintest.Model.Data
 import com.jyx.kotlintest.Model.ImagesBean
 import com.jyx.kotlintest.Model.ImagesVIewModel
-import com.jyx.kotlintest.R.id.rvImages
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
